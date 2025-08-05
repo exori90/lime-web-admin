@@ -1,0 +1,36 @@
+services:
+  web-admin:
+    image: sivander/lime-web-admin:latest
+    container_name: web-admin  # Match nginx upstream name
+    networks:
+      - proxy
+    expose:
+      - "3000"  # Use expose instead of ports for internal-only access
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1  # Disable Next.js telemetry in production
+      # Add any other environment variables your Next.js app needs
+      # - API_URL=https://api.nektar.gg
+      # - PUBLIC_URL=https://nektar.gg
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"] 
+      # Alternative if you don't have a health endpoint:
+      # test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s  # Give Next.js time to start up
+    # Resource limits (optional but recommended)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+networks:
+  proxy:
+    external: true
