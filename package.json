@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "env:check": "node -e \"console.log('Environment:', process.env.NODE_ENV || 'development'); console.log('API Base URL:', process.env.NEXT_PUBLIC_API_BASE_URL || 'Not set'); console.log('App Name:', process.env.NEXT_PUBLIC_APP_NAME || 'Not set');\""
   },
   "dependencies": {
     "react": "19.1.0",
