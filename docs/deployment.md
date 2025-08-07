@@ -25,33 +25,62 @@ The application uses a simple, effective deployment strategy:
 - Different configurations for staging/production
 - Never committed to repository
 
-## 🔧 GitHub Secrets Setup
+## 🔧 Environment Variables Setup
 
-Set up these secrets in your GitHub repository settings:
+Since deployment is handled by an external application that pulls Docker images, environment variables are managed through several options:
 
-### Vercel Deployment Secrets
+### Option 1: Docker Environment Files (Recommended)
+
+Use the provided environment files in the `docker/env/` directory:
+
+```bash
+# Production deployment
+docker run --env-file ./docker/env/production.env your-image
+
+# Staging deployment  
+docker run --env-file ./docker/env/staging.env your-image
 ```
-VERCEL_TOKEN=your_vercel_token
-VERCEL_ORG_ID=your_vercel_org_id
-VERCEL_PROJECT_ID=your_vercel_project_id
+
+### Option 2: Docker Compose
+
+```bash
+# Production
+docker-compose -f docker/docker-compose.production.yml up -d
+
+# Staging
+docker-compose -f docker/docker-compose.staging.yml up -d
 ```
 
-### Production Environment Configuration
+### Option 3: Direct Environment Variables
 
-Both staging and production now use Nektar.gg APIs:
+Set variables directly in your deployment system:
 
 **API Endpoints:**
 - Main API: `https://api.nektar.gg/api`
 - Authentication: `https://login.nektar.gg/api`
 - Server Monitoring: `https://orchestrator.nektar.gg/api`
 
-**Optional Secrets (if you want to override defaults):**
-```
-GOOGLE_ANALYTICS_ID=GA_MEASUREMENT_ID
-CDN_URL=https://cdn.nektar.gg
+**Required Variables:**
+```bash
+NODE_ENV=production
+NEXT_PUBLIC_API_BASE_URL=https://api.nektar.gg/api
+NEXT_PUBLIC_AUTH_API_URL=https://login.nektar.gg/api
+NEXT_PUBLIC_USERS_API_URL=https://api.nektar.gg/api/users
+NEXT_PUBLIC_FILES_API_URL=https://api.nektar.gg/api/files
+NEXT_PUBLIC_ORCHESTRATOR_API_URL=https://orchestrator.nektar.gg/api
+NEXT_PUBLIC_APP_NAME="Lime Web Admin"
+NEXT_PUBLIC_APP_ENV="production"
+NEXT_PUBLIC_ENABLE_DEBUG=false
+NEXT_PUBLIC_ENABLE_ANALYTICS=true
 ```
 
-**Note:** The Nektar.gg API endpoints are now hardcoded in the deployment workflow, so you don't need to set up API URL secrets unless you want to override them.
+**Optional Variables:**
+```bash
+NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=GA_MEASUREMENT_ID
+NEXT_PUBLIC_CDN_URL=https://cdn.nektar.gg
+```
+
+See the [Docker Deployment Guide](../docker/README.md) for detailed configuration options.
 
 ## 🌊 Deployment Flow
 
@@ -65,54 +94,41 @@ git push origin feature/new-feature
 # Create PR to develop
 ```
 
-### 2. Staging Deployment
+### 2. CI/CD Pipeline
 ```bash
-# Merge PR to develop branch
-git checkout develop
-git merge feature/new-feature
-git push origin develop
+# Push to any branch triggers:
+git push origin feature/new-feature
 ```
 
 This triggers:
-- ✅ Test and build
-- 🚀 Deploy to staging environment
-- 🔧 Uses staging secrets from GitHub
+- ✅ Test and build in GitHub Actions
+- 🏗️ Creates Docker image (if configured)
+- 📦 Pushes to container registry
 
-### 3. Production Deployment
-```bash
-# Merge develop to main
-git checkout main
-git merge develop
-git push origin main
-```
+### 3. External Deployment
+Your external deployment application:
+- 🔍 Monitors container registry for new images
+- 📥 Pulls latest images when available
+- 🚀 Deploys using environment configurations
+- 🔄 Handles rolling updates and health checks
 
-This triggers:
-- ✅ Test and build
-- 🚀 Deploy to production environment  
-- 🔧 Uses production secrets from GitHub
+### 4. Environment-specific Deployment
+- **Staging**: Uses `docker/env/staging.env` or staging Docker Compose
+- **Production**: Uses `docker/env/production.env` or production Docker Compose
 
 ## 📋 GitHub Actions Workflow
 
 The workflow (`.github/workflows/deploy.yml`) includes:
 
-### Test Job
-- Runs on every push and PR
+### Test and Build Job
+- Runs on every push and PR to main/develop branches
 - Creates test environment configuration
 - Installs dependencies
 - Runs linting
 - Builds the application
+- Validates that the code compiles successfully
 
-### Deploy Staging Job
-- Runs only on `develop` branch pushes
-- Creates staging environment file from secrets
-- Builds for staging
-- Deploys to Vercel staging
-
-### Deploy Production Job
-- Runs only on `main` branch pushes
-- Creates production environment file from secrets
-- Builds for production
-- Deploys to Vercel production
+**No deployment is performed** - this is handled by your external deployment application that monitors and pulls Docker images.
 
 ## 🔒 Security Benefits
 

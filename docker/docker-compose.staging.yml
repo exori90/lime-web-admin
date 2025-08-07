@@ -1,0 +1,59 @@
+# Staging Docker Compose configuration
+# Usage: docker-compose -f docker-compose.staging.yml up -d
+
+version: '3.8'
+
+services:
+  lime-web-admin-staging:
+    image: your-registry/lime-web-admin:staging
+    container_name: lime-web-admin-staging
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      # Node Environment
+      - NODE_ENV=production
+      
+      # API Configuration
+      - NEXT_PUBLIC_API_BASE_URL=https://api.nektar.gg/api
+      - NEXT_PUBLIC_AUTH_API_URL=https://login.nektar.gg/api
+      - NEXT_PUBLIC_ORCHESTRATOR_API_URL=https://orchestrator.nektar.gg/api
+      
+      # Application Configuration
+      - NEXT_PUBLIC_APP_NAME=Lime Web Admin (Staging)
+      - NEXT_PUBLIC_APP_VERSION=staging-latest
+      - NEXT_PUBLIC_APP_ENV=staging
+      
+      # Feature Flags
+      - NEXT_PUBLIC_ENABLE_DEBUG=true
+      - NEXT_PUBLIC_ENABLE_MOCK_API=false
+      - NEXT_PUBLIC_ENABLE_ANALYTICS=false
+      
+      # API Configuration
+      - NEXT_PUBLIC_API_TIMEOUT=10000
+      - NEXT_PUBLIC_API_RETRIES=3
+      - NEXT_PUBLIC_API_RETRY_DELAY=1000
+      
+      # File Upload Configuration
+      - NEXT_PUBLIC_MAX_FILE_SIZE=5
+      - NEXT_PUBLIC_ALLOWED_FILE_TYPES=image/jpeg,image/png,image/gif,application/pdf
+      
+      # Cache Configuration
+      - NEXT_PUBLIC_CACHE_TTL=300000
+    networks:
+      - lime-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lime-admin-staging.rule=Host(`admin-staging.lime.gg`)"
+      - "traefik.http.routers.lime-admin-staging.tls=true"
+      - "traefik.http.routers.lime-admin-staging.tls.certresolver=letsencrypt"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  lime-network:
+    external: true
