@@ -78,27 +78,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const quickLogin = async () => {
     try {
-      console.log('🎯 AuthContext: Starting quick login...');
       setLoading(true);
       const response = await AuthService.quickLogin();
-      console.log('🎯 AuthContext: Got response:', response);
       
       if (response.success && response.data) {
-        console.log('🎯 AuthContext: Setting user state...');
         // Set user state directly from quick login response
         setUser({
           username: 'testuser', // Default quick login username
           isAuthenticated: true,
         });
         setLoading(false);
-        console.log('🎯 AuthContext: User state set, loading false');
       } else {
-        console.error('🎯 AuthContext: Login failed:', response);
         setLoading(false);
         throw new Error(response.message || 'Quick login failed');
       }
     } catch (error) {
-      console.error('🎯 AuthContext: Quick login error:', error);
       setLoading(false);
       throw error;
     }

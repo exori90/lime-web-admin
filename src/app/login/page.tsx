@@ -10,9 +10,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('🔑 Login page: Auth state changed', { loading, user });
     if (!loading && user) {
-      console.log('🔑 Login page: User logged in, redirecting to main page...');
       router.push('/');
     }
   }, [loading, user, router]);

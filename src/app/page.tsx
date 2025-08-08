@@ -11,9 +11,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('🏠 Main page: Auth state changed', { loading, user });
     if (!loading && !user) {
-      console.log('🏠 Main page: Redirecting to login...');
       router.push('/login');
     }
   }, [loading, user, router]);

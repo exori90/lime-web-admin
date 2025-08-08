@@ -29,7 +29,7 @@ export interface ValidationResponse {
 export class AuthService {
   // Login user with username/password
   static async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-    const response = await authService.post<LoginResponse>('/v1/login/authenticate', credentials);
+    const response = await authService.post<LoginResponse>('/login/authenticate', credentials);
     
     // Automatically set tokens in the API service after successful login
     if (response.success && response.data) {
@@ -53,37 +53,25 @@ export class AuthService {
 
   // Quick login for testing
   static async quickLogin(): Promise<ApiResponse<LoginResponse>> {
-    console.log('🚀 Starting quick login...');
+    const response = await authService.post<LoginResponse>('/login/quick-login');
     
-    try {
-      const response = await authService.post<LoginResponse>('/v1/login/quick-login');
-      console.log('📡 Quick login response:', response);
+    // Automatically set tokens after successful quick login
+    if (response.success && response.data) {
+      const authTokens: AuthTokens = {
+        accessToken: response.data.token,
+        tokenType: response.data.tokenType || 'Bearer',
+      };
+      apiService.setAuthTokens(authTokens);
+      authService.setAuthTokens(authTokens);
       
-      // Automatically set tokens after successful quick login
-      if (response.success && response.data) {
-        console.log('✅ Login successful, setting tokens...');
-        const authTokens: AuthTokens = {
-          accessToken: response.data.token,
-          tokenType: response.data.tokenType || 'Bearer',
-        };
-        apiService.setAuthTokens(authTokens);
-        authService.setAuthTokens(authTokens);
-        
-        // Store tokens in localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('authTokens', JSON.stringify(authTokens));
-          localStorage.setItem('loginResponse', JSON.stringify(response.data));
-          console.log('💾 Tokens stored in localStorage');
-        }
-      } else {
-        console.error('❌ Login failed:', response);
+      // Store tokens in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authTokens', JSON.stringify(authTokens));
+        localStorage.setItem('loginResponse', JSON.stringify(response.data));
       }
-      
-      return response;
-    } catch (error) {
-      console.error('🔥 Quick login error:', error);
-      throw error;
     }
+    
+    return response;
   }
 
   // Logout user
@@ -109,7 +97,7 @@ export class AuthService {
   // Validate current token
   static async validateToken(): Promise<ApiResponse<ValidationResponse>> {
     try {
-      return await authService.get<ValidationResponse>('/v1/login/validate');
+      return await authService.get<ValidationResponse>('/login/validate');
     } catch (error) {
       // For 401 errors, return a failed response instead of throwing
       const apiError = error as { status?: number; message?: string };

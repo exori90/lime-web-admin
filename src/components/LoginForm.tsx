@@ -26,20 +26,15 @@ const LoginForm: React.FC = () => {
   };
 
   const handleQuickLogin = async () => {
-    console.log('🔐 LoginForm: Quick login button clicked');
     setError('');
     setIsSubmitting(true);
 
     try {
-      console.log('🔐 LoginForm: Calling quickLogin...');
       await quickLogin();
-      console.log('🔐 LoginForm: Quick login completed successfully');
     } catch (err) {
-      console.error('🔐 LoginForm: Quick login failed:', err);
       setError(err instanceof Error ? err.message : 'Quick login failed');
     } finally {
       setIsSubmitting(false);
-      console.log('🔐 LoginForm: Setting isSubmitting to false');
     }
   };
 
