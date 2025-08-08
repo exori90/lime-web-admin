@@ -4,86 +4,98 @@ import type { ApiResponse, AuthTokens } from '@/services/api';
 
 // Auth-related types
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
-  rememberMe?: boolean;
-}
-
-export interface RegisterRequest {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
 }
 
 export interface LoginResponse {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-  };
-  tokens: AuthTokens;
+  token: string;
+  expiresAt: string;
+  tokenType: string;
 }
 
-export interface RefreshTokenResponse {
-  tokens: AuthTokens;
+export interface User {
+  username: string;
+  isAuthenticated: boolean;
+}
+
+export interface ValidationResponse {
+  message: string;
+  username: string;
+  isAuthenticated: boolean;
 }
 
 // Authentication service class
 export class AuthService {
-  // Login user
+  // Login user with username/password
   static async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-    const response = await authService.post<LoginResponse>('/login', credentials);
+    const response = await authService.post<LoginResponse>('/v1/login/authenticate', credentials);
     
-    // Automatically set tokens in the main API service after successful login
-    if (response.success && response.data.tokens) {
-      apiService.setAuthTokens(response.data.tokens);
-      authService.setAuthTokens(response.data.tokens);
+    // Automatically set tokens in the API service after successful login
+    if (response.success && response.data) {
+      const authTokens: AuthTokens = {
+        accessToken: response.data.token,
+        tokenType: response.data.tokenType || 'Bearer',
+        // Note: Login server doesn't provide refresh tokens yet
+      };
+      apiService.setAuthTokens(authTokens);
+      authService.setAuthTokens(authTokens);
       
       // Store tokens in localStorage for persistence
       if (typeof window !== 'undefined') {
-        localStorage.setItem('authTokens', JSON.stringify(response.data.tokens));
+        localStorage.setItem('authTokens', JSON.stringify(authTokens));
+        localStorage.setItem('loginResponse', JSON.stringify(response.data));
       }
     }
     
     return response;
   }
 
-  // Register new user
-  static async register(userData: RegisterRequest): Promise<ApiResponse<LoginResponse>> {
-    const response = await authService.post<LoginResponse>('/register', userData);
+  // Quick login for testing
+  static async quickLogin(): Promise<ApiResponse<LoginResponse>> {
+    console.log('🚀 Starting quick login...');
     
-    // Automatically set tokens after successful registration
-    if (response.success && response.data.tokens) {
-      apiService.setAuthTokens(response.data.tokens);
-      authService.setAuthTokens(response.data.tokens);
+    try {
+      const response = await authService.post<LoginResponse>('/v1/login/quick-login');
+      console.log('📡 Quick login response:', response);
       
-      // Store tokens in localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('authTokens', JSON.stringify(response.data.tokens));
+      // Automatically set tokens after successful quick login
+      if (response.success && response.data) {
+        console.log('✅ Login successful, setting tokens...');
+        const authTokens: AuthTokens = {
+          accessToken: response.data.token,
+          tokenType: response.data.tokenType || 'Bearer',
+        };
+        apiService.setAuthTokens(authTokens);
+        authService.setAuthTokens(authTokens);
+        
+        // Store tokens in localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('authTokens', JSON.stringify(authTokens));
+          localStorage.setItem('loginResponse', JSON.stringify(response.data));
+          console.log('💾 Tokens stored in localStorage');
+        }
+      } else {
+        console.error('❌ Login failed:', response);
       }
+      
+      return response;
+    } catch (error) {
+      console.error('🔥 Quick login error:', error);
+      throw error;
     }
-    
-    return response;
   }
 
   // Logout user
   static async logout(): Promise<ApiResponse<void>> {
-    try {
-      // Call logout endpoint to invalidate tokens on server
-      await authService.post<void>('/logout');
-    } catch (error) {
-      console.warn('Logout endpoint failed, proceeding with local cleanup:', error);
-    } finally {
-      // Clear tokens from services
-      apiService.clearAuthTokens();
-      authService.clearAuthTokens();
-      
-      // Clear tokens from localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('authTokens');
-      }
+    // Clear tokens from services
+    apiService.clearAuthTokens();
+    authService.clearAuthTokens();
+    
+    // Clear tokens from localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('authTokens');
+      localStorage.removeItem('loginResponse');
     }
     
     return {
@@ -94,67 +106,24 @@ export class AuthService {
     };
   }
 
-  // Refresh access token
-  static async refreshToken(): Promise<ApiResponse<RefreshTokenResponse>> {
-    const currentTokens = apiService.getAuthTokens();
-    
-    if (!currentTokens?.refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    const response = await authService.post<RefreshTokenResponse>('/refresh', {
-      refreshToken: currentTokens.refreshToken,
-    });
-
-    // Update tokens in services
-    if (response.success && response.data.tokens) {
-      apiService.setAuthTokens(response.data.tokens);
-      authService.setAuthTokens(response.data.tokens);
-      
-      // Update tokens in localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('authTokens', JSON.stringify(response.data.tokens));
+  // Validate current token
+  static async validateToken(): Promise<ApiResponse<ValidationResponse>> {
+    try {
+      return await authService.get<ValidationResponse>('/v1/login/validate');
+    } catch (error) {
+      // For 401 errors, return a failed response instead of throwing
+      const apiError = error as { status?: number; message?: string };
+      if (apiError.status === 401) {
+        return {
+          data: undefined as any,
+          success: false,
+          status: 401,
+          message: 'Token is invalid or expired',
+        };
       }
+      // Re-throw other errors
+      throw error;
     }
-
-    return response;
-  }
-
-  // Forgot password
-  static async forgotPassword(email: string): Promise<ApiResponse<{ message: string }>> {
-    return authService.post<{ message: string }>('/forgot-password', { email });
-  }
-
-  // Reset password
-  static async resetPassword(
-    token: string, 
-    newPassword: string
-  ): Promise<ApiResponse<{ message: string }>> {
-    return authService.post<{ message: string }>('/reset-password', {
-      token,
-      password: newPassword,
-    });
-  }
-
-  // Change password (for authenticated users)
-  static async changePassword(
-    currentPassword: string,
-    newPassword: string
-  ): Promise<ApiResponse<{ message: string }>> {
-    return authService.post<{ message: string }>('/change-password', {
-      currentPassword,
-      newPassword,
-    });
-  }
-
-  // Verify email
-  static async verifyEmail(token: string): Promise<ApiResponse<{ message: string }>> {
-    return authService.post<{ message: string }>('/verify-email', { token });
-  }
-
-  // Resend verification email
-  static async resendVerification(): Promise<ApiResponse<{ message: string }>> {
-    return authService.post<{ message: string }>('/resend-verification');
   }
 
   // Initialize authentication state from localStorage
@@ -169,6 +138,7 @@ export class AuthService {
         } catch (error) {
           console.error('Error parsing stored auth tokens:', error);
           localStorage.removeItem('authTokens');
+          localStorage.removeItem('loginResponse');
         }
       }
     }
@@ -184,20 +154,32 @@ export class AuthService {
   static getCurrentTokens(): AuthTokens | null {
     return apiService.getAuthTokens();
   }
+
+  // Get stored login response for user info
+  static getStoredLoginResponse(): LoginResponse | null {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('loginResponse');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (error) {
+          console.error('Error parsing stored login response:', error);
+          return null;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 // Export individual methods for convenience
 export const {
   login,
-  register,
+  quickLogin,
   logout,
-  refreshToken,
-  forgotPassword,
-  resetPassword,
-  changePassword,
-  verifyEmail,
-  resendVerification,
+  validateToken,
   initializeAuth,
   isAuthenticated,
   getCurrentTokens,
+  getStoredLoginResponse,
 } = AuthService;

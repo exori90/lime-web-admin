@@ -1,10 +1,55 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const { user, loading, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    console.log('🏠 Main page: Auth state changed', { loading, user });
+    if (!loading && !user) {
+      console.log('🏠 Main page: Redirecting to login...');
+      router.push('/login');
+    }
+  }, [loading, user, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-xl">🔄 Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to login
+  }
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="font-sans min-h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <header className="bg-gray-800 border-b border-gray-700 p-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <h1 className="text-xl font-bold">Lime Web Admin</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-gray-300">Welcome, {user.username}</span>
+            <button
+              onClick={logout}
+              className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              🚪 Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-8">
+        <main className="flex flex-col gap-[32px] items-center sm:items-start">
         <Image
           className="dark:invert"
           src="/next.svg"
@@ -15,15 +60,15 @@ export default function Home() {
         />
         
         <div className="text-center sm:text-left">
-          <h1 className="text-3xl font-bold mb-4">Lime Web Admin</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+          <h2 className="text-3xl font-bold mb-4 text-white">Admin Dashboard</h2>
+          <p className="text-lg text-gray-300 mb-6">
             Complete API service layer with TypeScript support
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border max-w-2xl">
-          <h2 className="text-xl font-semibold mb-4">🚀 API Service Features</h2>
-          <ul className="space-y-2 text-sm">
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 max-w-2xl">
+          <h3 className="text-xl font-semibold mb-4 text-white">🚀 API Service Features</h3>
+          <ul className="space-y-2 text-sm text-gray-300">
             <li className="flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               TypeScript support with full type safety
@@ -51,16 +96,16 @@ export default function Home() {
           </ul>
         </div>
 
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
+        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left text-gray-300">
           <li className="mb-2 tracking-[-.01em]">
             Check out the API service in{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
+            <code className="bg-gray-700 font-mono font-semibold px-1 py-0.5 rounded text-gray-200">
               src/services/
             </code>
           </li>
           <li className="tracking-[-.01em]">
             View examples in{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
+            <code className="bg-gray-700 font-mono font-semibold px-1 py-0.5 rounded text-gray-200">
               src/services/examples/
             </code>
           </li>
@@ -69,12 +114,12 @@ export default function Home() {
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <Link
             href="/services/README.md"
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+            className="rounded-full border border-solid border-gray-600 transition-colors flex items-center justify-center bg-blue-600 text-white gap-2 hover:bg-blue-700 font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
           >
             📖 API Documentation
           </Link>
           <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto"
+            className="rounded-full border border-solid border-gray-600 transition-colors flex items-center justify-center hover:bg-gray-700 bg-gray-800 text-gray-300 hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto"
             href="https://github.com/your-repo/lime-web-admin"
             target="_blank"
             rel="noopener noreferrer"
@@ -89,8 +134,12 @@ export default function Home() {
             View on GitHub
           </a>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
+        </main>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 border-t border-gray-700 mt-16 p-8">
+        <div className="max-w-7xl mx-auto flex gap-[24px] flex-wrap items-center justify-center text-gray-400">
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
           href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
@@ -136,6 +185,7 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
+        </div>
       </footer>
     </div>
   );

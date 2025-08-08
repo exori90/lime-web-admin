@@ -113,7 +113,7 @@ export const appConfig = {
 // Get default URLs for different services based on environment
 const getDefaultAuthURL = (env: string): string => {
   const defaults = {
-    development: 'http://localhost:3001/api/auth',
+    development: 'http://localhost:5000/api',
     test: 'https://login.nektar.gg/api',
     production: 'https://login.nektar.gg/api',
   };
