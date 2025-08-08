@@ -3,18 +3,43 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getSessions } from "@/services/monitoring/orchestratorService";
 
 export default function Home() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
+  const [sessions, setSessions] = useState<string[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsError, setSessionsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [loading, user, router]);
+
+  const handleGetSessions = async () => {
+    console.log('🎯 Getting sessions...');
+    setSessionsLoading(true);
+    setSessionsError(null);
+    
+    try {
+      const response = await getSessions();
+      console.log('📡 Sessions response:', response);
+      if (response.success && response.data) {
+        setSessions(response.data);
+      } else {
+        setSessionsError(response.message || 'Failed to fetch sessions');
+      }
+    } catch (error) {
+      console.error('🔥 Sessions error:', error);
+      setSessionsError(error instanceof Error ? error.message : 'An error occurred');
+    } finally {
+      setSessionsLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -92,6 +117,45 @@ export default function Home() {
               File upload support and caching utilities
             </li>
           </ul>
+        </div>
+
+        {/* Orchestrator Sessions Section */}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 max-w-2xl">
+          <h3 className="text-xl font-semibold mb-4 text-white">🔗 Orchestrator Sessions</h3>
+          
+          <button
+            onClick={handleGetSessions}
+            disabled={sessionsLoading}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md font-medium transition-colors mb-4"
+          >
+            {sessionsLoading ? '🔄 Loading...' : '📡 Get Active Sessions'}
+          </button>
+
+          {sessionsError && (
+            <div className="mb-4 p-3 bg-red-900/50 border border-red-700 text-red-300 rounded text-sm">
+              Error: {sessionsError}
+            </div>
+          )}
+
+          {sessions.length > 0 && (
+            <div className="bg-gray-700 p-4 rounded-md">
+              <h4 className="text-sm font-semibold text-gray-300 mb-2">Active Sessions ({sessions.length}):</h4>
+              <ul className="space-y-1 text-sm text-gray-400">
+                {sessions.map((session, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    {session}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {!sessionsLoading && sessions.length === 0 && !sessionsError && (
+            <div className="text-gray-400 text-sm italic">
+              Click "Get Active Sessions" to fetch current orchestrator sessions
+            </div>
+          )}
         </div>
 
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left text-gray-300">

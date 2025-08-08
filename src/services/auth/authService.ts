@@ -1,5 +1,5 @@
 // Authentication service for the application
-import { authService, apiService } from '@/services/api';
+import { authService, apiService, orchestratorService } from '@/services/api';
 import type { ApiResponse, AuthTokens } from '@/services/api';
 
 // Auth-related types
@@ -40,6 +40,7 @@ export class AuthService {
       };
       apiService.setAuthTokens(authTokens);
       authService.setAuthTokens(authTokens);
+      orchestratorService.setAuthTokens(authTokens);
       
       // Store tokens in localStorage for persistence
       if (typeof window !== 'undefined') {
@@ -63,6 +64,7 @@ export class AuthService {
       };
       apiService.setAuthTokens(authTokens);
       authService.setAuthTokens(authTokens);
+      orchestratorService.setAuthTokens(authTokens);
       
       // Store tokens in localStorage
       if (typeof window !== 'undefined') {
@@ -79,6 +81,7 @@ export class AuthService {
     // Clear tokens from services
     apiService.clearAuthTokens();
     authService.clearAuthTokens();
+    orchestratorService.clearAuthTokens();
     
     // Clear tokens from localStorage
     if (typeof window !== 'undefined') {
@@ -123,6 +126,7 @@ export class AuthService {
           const tokens: AuthTokens = JSON.parse(storedTokens);
           apiService.setAuthTokens(tokens);
           authService.setAuthTokens(tokens);
+          orchestratorService.setAuthTokens(tokens);
         } catch (error) {
           console.error('Error parsing stored auth tokens:', error);
           localStorage.removeItem('authTokens');

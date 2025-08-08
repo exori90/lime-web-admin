@@ -56,6 +56,9 @@ export class ApiService {
     if (this.authTokens?.accessToken) {
       const tokenType = this.authTokens.tokenType || 'Bearer';
       headers.Authorization = `${tokenType} ${this.authTokens.accessToken}`;
+      console.log('🔑 Authorization header added:', headers.Authorization.substring(0, 20) + '...');
+    } else {
+      console.log('❌ No auth tokens available for request');
     }
 
     return headers;

@@ -245,6 +245,21 @@ export class OrchestratorService {
   ): Promise<ApiResponse<{ deploymentId: string; message: string }>> {
     return orchestratorService.post(`/servers/${serverId}/deploy`, { version });
   }
+
+  // Get active sessions
+  static async getSessions(): Promise<ApiResponse<string[]>> {
+    // Debug: Check if orchestrator service has auth tokens
+    const tokens = orchestratorService.getAuthTokens();
+    console.log('🔍 Orchestrator service tokens:', tokens);
+    console.log('🌐 Calling URL: http://localhost:5002/api/sessions');
+    
+    return orchestratorService.get<string[]>('/sessions');
+  }
+
+  // Test orchestrator connection
+  static async testConnection(): Promise<ApiResponse<void>> {
+    return orchestratorService.get<void>('/tests');
+  }
 }
 
 // Export individual methods for convenience
@@ -264,4 +279,6 @@ export const {
   getSystemOverview,
   getDeployments,
   deployToServer,
+  getSessions,
+  testConnection,
 } = OrchestratorService;
