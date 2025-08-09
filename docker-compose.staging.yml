@@ -4,25 +4,22 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        BUILDER_STAGE: builder-prod  # Use production build configuration
-    container_name: web-admin  # Match nginx upstream name
+        BUILDER_STAGE: builder-staging  # Use staging build configuration
+    container_name: web-admin-staging
     networks:
       - proxy
     expose:
-      - "3000"  # Use expose instead of ports for internal-only access
+      - "3000"
     environment:
       - NODE_ENV=production
-      - NEXT_TELEMETRY_DISABLED=1  # Disable Next.js telemetry in production
+      - NEXT_TELEMETRY_DISABLED=1
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"] 
-      # Alternative if you don't have a health endpoint:
-      # test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s  # Give Next.js time to start up
-    # Resource limits (optional but recommended)
+      start_period: 40s
     deploy:
       resources:
         limits:

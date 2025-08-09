@@ -1,6 +1,6 @@
 import { ApiServiceConfig } from './types';
 
-// Simple configuration with defaults that can be overridden by environment variables
+// Simple configuration with defaults that can be overridden by environment variables at build time
 const defaultConfig = {
   timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '15000'),
   retries: parseInt(process.env.NEXT_PUBLIC_API_RETRIES || '2'),
@@ -11,7 +11,7 @@ const defaultConfig = {
   },
 };
 
-// API service configurations - matching web client structure
+// API service configurations - using build-time environment variables
 export const apiConfigs = {
   // Main web server API
   main: {

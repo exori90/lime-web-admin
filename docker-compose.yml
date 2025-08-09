@@ -4,15 +4,13 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        BUILDER_STAGE: builder-prod  # Use production build configuration
-    container_name: web-admin  # Match nginx upstream name
-    networks:
-      - proxy
-    expose:
-      - "3000"  # Use expose instead of ports for internal-only access
+        BUILDER_STAGE: builder-dev  # Use development build configuration
+    container_name: web-admin-dev
+    ports:
+      - "3000:3000"  # Expose port for local development
     environment:
-      - NODE_ENV=production
-      - NEXT_TELEMETRY_DISABLED=1  # Disable Next.js telemetry in production
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"] 

@@ -11,17 +11,57 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-# Rebuild the source code only when needed
-FROM base AS builder
+# Development build
+FROM base AS builder-dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the application
+# Set development environment variables (localhost)
+ENV NEXT_PUBLIC_WEB_SERVER_API_URL=http://localhost:5001/api
+ENV NEXT_PUBLIC_LOGIN_API_URL=http://localhost:5000/api/v1
+ENV NEXT_PUBLIC_ORCHESTRATOR_API_URL=http://localhost:5002/api
+ENV NEXT_PUBLIC_GAME_WORLD_HUB_URL=http://localhost:5002/hubs/gameworld
+ENV NEXT_PUBLIC_APP_NAME="Lime Web Admin (Dev)"
+ENV NEXT_PUBLIC_APP_VERSION=1.0.0-dev
+
 RUN npm run build
 
-# Production image, copy all the files and run next
+# Production build
+FROM base AS builder-prod
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Set production environment variables (nektar.gg domains)
+ENV NEXT_PUBLIC_WEB_SERVER_API_URL=https://api.nektar.gg/api
+ENV NEXT_PUBLIC_LOGIN_API_URL=https://login.nektar.gg/api/v1
+ENV NEXT_PUBLIC_ORCHESTRATOR_API_URL=https://orchestrator.nektar.gg/api
+ENV NEXT_PUBLIC_GAME_WORLD_HUB_URL=https://orchestrator.nektar.gg/hubs/gameworld
+ENV NEXT_PUBLIC_APP_NAME="Lime Web Admin"
+ENV NEXT_PUBLIC_APP_VERSION=1.0.0
+
+RUN npm run build
+
+# Staging build
+FROM base AS builder-staging
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Set staging environment variables (can be customized)
+ENV NEXT_PUBLIC_WEB_SERVER_API_URL=https://staging-api.nektar.gg/api
+ENV NEXT_PUBLIC_LOGIN_API_URL=https://staging-login.nektar.gg/api/v1
+ENV NEXT_PUBLIC_ORCHESTRATOR_API_URL=https://staging-orchestrator.nektar.gg/api
+ENV NEXT_PUBLIC_GAME_WORLD_HUB_URL=https://staging-orchestrator.nektar.gg/hubs/gameworld
+ENV NEXT_PUBLIC_APP_NAME="Lime Web Admin (Staging)"
+ENV NEXT_PUBLIC_APP_VERSION=1.0.0-staging
+
+RUN npm run build
+
+# Runtime image - accepts builder stage as build argument
 FROM base AS runner
+ARG BUILDER_STAGE=builder-prod
 WORKDIR /app
 
 ENV NODE_ENV production
@@ -30,12 +70,12 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy the public folder
-COPY --from=builder /app/public ./public
+COPY --from=${BUILDER_STAGE} /app/public ./public
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=${BUILDER_STAGE} --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=${BUILDER_STAGE} --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
