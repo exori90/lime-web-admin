@@ -11,7 +11,7 @@ const LoginForm: React.FC = () => {
   
   const { login, quickLogin } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
@@ -25,7 +25,7 @@ const LoginForm: React.FC = () => {
     }
   };
 
-  const handleQuickLogin = async () => {
+  const handleQuickLogin = async (): Promise<void> => {
     setError('');
     setIsSubmitting(true);
 

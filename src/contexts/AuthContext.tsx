@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const validateToken = async () => {
+  const validateToken = async (): Promise<void> => {
     try {
       const response = await AuthService.validateToken();
       if (response.success && response.data) {
@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async (credentials: LoginRequest) => {
+  const login = async (credentials: LoginRequest): Promise<void> => {
     try {
       setLoading(true);
       const response = await AuthService.login(credentials);
@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const quickLogin = async () => {
+  const quickLogin = async (): Promise<void> => {
     try {
       setLoading(true);
       const response = await AuthService.quickLogin();
@@ -98,7 +98,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     await AuthService.logout();
     setUser(null);
   };
