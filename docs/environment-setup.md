@@ -39,6 +39,7 @@ For test and production environments, configurations are managed through GitHub 
 | `NEXT_PUBLIC_AUTH_API_URL` | Auth API endpoint | `http://localhost:3001/api/auth` | `https://api-test.lime-admin.com/api/auth` | `https://api.lime-admin.com/api/auth` |
 | `NEXT_PUBLIC_USERS_API_URL` | Users API endpoint | `http://localhost:3001/api/users` | `https://api-test.lime-admin.com/api/users` | `https://api.lime-admin.com/api/users` |
 | `NEXT_PUBLIC_FILES_API_URL` | Files API endpoint | `http://localhost:3001/api/files` | `https://api-test.lime-admin.com/api/files` | `https://api.lime-admin.com/api/files` |
+| `NEXT_PUBLIC_GAME_WORLD_HUB_URL` | Game World SignalR hub | `http://localhost:5002/hubs/gameworld` | `https://api-test.lime-admin.com/hubs/gameworld` | `https://api.lime-admin.com/hubs/gameworld` |
 
 ### Application Configuration
 
@@ -96,6 +97,7 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api
 NEXT_PUBLIC_AUTH_API_URL=http://localhost:3001/api/auth
 NEXT_PUBLIC_USERS_API_URL=http://localhost:3001/api/users
 NEXT_PUBLIC_FILES_API_URL=http://localhost:3001/api/files
+NEXT_PUBLIC_GAME_WORLD_HUB_URL=http://localhost:5002/hubs/gameworld
 
 NEXT_PUBLIC_APP_NAME="Lime Web Admin (Local)"
 NEXT_PUBLIC_APP_VERSION="1.0.0-dev"
@@ -127,6 +129,7 @@ NEXT_PUBLIC_API_BASE_URL=https://api-test.lime-admin.com/api
 NEXT_PUBLIC_AUTH_API_URL=https://api-test.lime-admin.com/api/auth
 NEXT_PUBLIC_USERS_API_URL=https://api-test.lime-admin.com/api/users
 NEXT_PUBLIC_FILES_API_URL=https://api-test.lime-admin.com/api/files
+NEXT_PUBLIC_GAME_WORLD_HUB_URL=https://api-test.lime-admin.com/hubs/gameworld
 
 NEXT_PUBLIC_APP_NAME="Lime Web Admin (Test)"
 NEXT_PUBLIC_APP_VERSION="1.0.0-test"
@@ -158,6 +161,7 @@ NEXT_PUBLIC_API_BASE_URL=https://api.lime-admin.com/api
 NEXT_PUBLIC_AUTH_API_URL=https://api.lime-admin.com/api/auth
 NEXT_PUBLIC_USERS_API_URL=https://api.lime-admin.com/api/users
 NEXT_PUBLIC_FILES_API_URL=https://api.lime-admin.com/api/files
+NEXT_PUBLIC_GAME_WORLD_HUB_URL=https://api.lime-admin.com/hubs/gameworld
 
 NEXT_PUBLIC_APP_NAME="Lime Web Admin"
 NEXT_PUBLIC_APP_VERSION="1.0.0"

@@ -2,6 +2,7 @@
 // Note: This requires @microsoft/signalr package to be installed
 // Run: npm install @microsoft/signalr
 import * as signalR from "@microsoft/signalr";
+import { signalRConfigs } from "../api/config";
 
 export interface GameState {
   CurrentPhase: string;
@@ -53,7 +54,7 @@ export class GameWorldService {
 
       // Create SignalR connection
       this.connection = new signalR.HubConnectionBuilder()
-        .withUrl("http://localhost:5002/hubs/gameworld", {
+        .withUrl(signalRConfigs.gameWorld.baseURL, {
           accessTokenFactory: () => accessToken
         })
         .withAutomaticReconnect()

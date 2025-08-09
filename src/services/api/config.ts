@@ -33,6 +33,14 @@ export const apiConfigs = {
   } as ApiServiceConfig,
 };
 
+// SignalR hub configurations
+export const signalRConfigs = {
+  // Game world hub
+  gameWorld: {
+    baseURL: process.env.NEXT_PUBLIC_GAME_WORLD_HUB_URL || 'http://localhost:5002/hubs/gameworld',
+  },
+};
+
 // App configuration
 export const appConfig = {
   name: process.env.NEXT_PUBLIC_APP_NAME || 'Lime Web Admin',
