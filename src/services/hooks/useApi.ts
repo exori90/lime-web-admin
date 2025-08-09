@@ -273,6 +273,7 @@ export function usePaginatedQuery<T>(
     if (page > 1) {
       return fetchPage(page - 1);
     }
+    return Promise.resolve(undefined);
   }, [fetchPage, page]);
 
   const firstPage = useCallback((): Promise<ApiResponse<T>> => {
