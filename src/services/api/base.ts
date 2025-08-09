@@ -2,8 +2,7 @@ import {
   ApiResponse, 
   ApiError, 
   ApiServiceConfig, 
-  RequestOptions, 
-  HttpMethod,
+  RequestOptions,
   AuthTokens 
 } from './types';
 
