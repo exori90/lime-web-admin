@@ -193,7 +193,7 @@ export const CreateUserExample: React.FC = () => {
 // Example: Authentication Component
 export const LoginExample: React.FC = () => {
   const [credentials, setCredentials] = useState({
-    email: '',
+    username: '',
     password: '',
     rememberMe: false,
   });
@@ -227,7 +227,7 @@ export const LoginExample: React.FC = () => {
           loading: false,
           isAuthenticated: true,
         }));
-        setCredentials({ email: '', password: '', rememberMe: false });
+        setCredentials({ username: '', password: '', rememberMe: false });
       }
     } catch (error: any) {
       setLoginState(prev => ({
@@ -271,11 +271,11 @@ export const LoginExample: React.FC = () => {
       
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
+          <label className="block text-sm font-medium mb-1">Username</label>
           <input
-            type="email"
-            value={credentials.email}
-            onChange={(e) => setCredentials(prev => ({ ...prev, email: e.target.value }))}
+            type="text"
+            value={credentials.username}
+            onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
             className="w-full p-2 border rounded"
             required
           />
