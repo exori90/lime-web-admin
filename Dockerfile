@@ -1,5 +1,5 @@
 # Multi-stage build for Next.js app
-FROM node:22.11-alpine AS base
+FROM node:18-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps

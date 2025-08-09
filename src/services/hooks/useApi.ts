@@ -193,7 +193,7 @@ export function useQuery<T>(
 
       return () => clearInterval(interval);
     }
-  }, [refetchInterval, enabled, apiHook.loading, apiHook.execute]);
+  }, [refetchInterval, enabled, apiHook]);
 
   return {
     ...apiHook,
