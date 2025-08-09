@@ -1,7 +1,7 @@
 // API Types and Interfaces
 
 export interface ApiResponse<T = unknown> {
-  data: T;
+  data: T | null;
   message?: string;
   status: number;
   success: boolean;

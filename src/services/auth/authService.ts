@@ -106,7 +106,7 @@ export class AuthService {
       const apiError = error as { status?: number; message?: string };
       if (apiError.status === 401) {
         return {
-          data: undefined as any,
+          data: null,
           success: false,
           status: 401,
           message: 'Token is invalid or expired',
