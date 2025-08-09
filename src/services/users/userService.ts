@@ -1,5 +1,5 @@
 // User management service for the application
-import { usersService } from '@/services/api';
+import { apiService } from '@/services/api';
 import type { ApiResponse } from '@/services/api';
 
 // Define user-related types
@@ -53,32 +53,32 @@ export class UserService {
     const queryString = queryParams.toString();
     const endpoint = queryString ? `/users?${queryString}` : '/users';
     
-    return usersService.get<UsersListResponse>(endpoint);
+    return apiService.get<UsersListResponse>(endpoint);
   }
 
   // Get user by ID
   static async getUserById(id: string): Promise<ApiResponse<User>> {
-    return usersService.get<User>(`/users/${id}`);
+    return apiService.get<User>(`/users/${id}`);
   }
 
   // Create new user
   static async createUser(userData: CreateUserRequest): Promise<ApiResponse<User>> {
-    return usersService.post<User>('/users', userData);
+    return apiService.post<User>('/users', userData);
   }
 
   // Update user
   static async updateUser(id: string, userData: UpdateUserRequest): Promise<ApiResponse<User>> {
-    return usersService.patch<User>(`/users/${id}`, userData);
+    return apiService.patch<User>(`/users/${id}`, userData);
   }
 
   // Delete user
   static async deleteUser(id: string): Promise<ApiResponse<void>> {
-    return usersService.delete<void>(`/users/${id}`);
+    return apiService.delete<void>(`/users/${id}`);
   }
 
   // Upload user avatar
   static async uploadAvatar(userId: string, file: File): Promise<ApiResponse<{ avatarUrl: string }>> {
-    return usersService.uploadFile<{ avatarUrl: string }>(
+    return apiService.uploadFile<{ avatarUrl: string }>(
       `/users/${userId}/avatar`,
       file,
       { userId }
@@ -87,12 +87,12 @@ export class UserService {
 
   // Get current user profile (requires authentication)
   static async getCurrentUser(): Promise<ApiResponse<User>> {
-    return usersService.get<User>('/users/me');
+    return apiService.get<User>('/users/me');
   }
 
   // Update current user profile
   static async updateCurrentUser(userData: UpdateUserRequest): Promise<ApiResponse<User>> {
-    return usersService.patch<User>('/users/me', userData);
+    return apiService.patch<User>('/users/me', userData);
   }
 }
 
