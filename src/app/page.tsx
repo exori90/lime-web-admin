@@ -21,20 +21,17 @@ export default function Home() {
   }, [loading, user, router]);
 
   const handleGetSessions = async () => {
-    console.log('🎯 Getting sessions...');
     setSessionsLoading(true);
     setSessionsError(null);
     
     try {
       const response = await getSessions();
-      console.log('📡 Sessions response:', response);
       if (response.success && response.data) {
         setSessions(response.data);
       } else {
         setSessionsError(response.message || 'Failed to fetch sessions');
       }
     } catch (error) {
-      console.error('🔥 Sessions error:', error);
       setSessionsError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setSessionsLoading(false);
@@ -174,6 +171,12 @@ export default function Home() {
         </ol>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
+          <Link
+            href="/world"
+            className="rounded-full border border-solid border-gray-600 transition-colors flex items-center justify-center bg-green-600 text-white gap-2 hover:bg-green-700 font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+          >
+            🌍 Game World Monitor
+          </Link>
           <Link
             href="/services/README.md"
             className="rounded-full border border-solid border-gray-600 transition-colors flex items-center justify-center bg-blue-600 text-white gap-2 hover:bg-blue-700 font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"

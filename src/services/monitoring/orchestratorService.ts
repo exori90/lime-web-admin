@@ -248,11 +248,6 @@ export class OrchestratorService {
 
   // Get active sessions
   static async getSessions(): Promise<ApiResponse<string[]>> {
-    // Debug: Check if orchestrator service has auth tokens
-    const tokens = orchestratorService.getAuthTokens();
-    console.log('🔍 Orchestrator service tokens:', tokens);
-    console.log('🌐 Calling URL: http://localhost:5002/api/sessions');
-    
     return orchestratorService.get<string[]>('/sessions');
   }
 
