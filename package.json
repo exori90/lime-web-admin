@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:strict": "eslint src/**/*.{ts,tsx} --max-warnings 0",
     "env:check": "node -e \"console.log('Environment:', process.env.NODE_ENV || 'development'); console.log('API Base URL:', process.env.NEXT_PUBLIC_API_BASE_URL || 'Not set'); console.log('App Name:', process.env.NEXT_PUBLIC_APP_NAME || 'Not set');\""
   },
   "dependencies": {
@@ -16,13 +17,16 @@
     "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
+    "@next/eslint-plugin-next": "^15.4.5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.56.0",
     "eslint-config-next": "15.4.5",
+    "eslint-plugin-react": "^7.33.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
